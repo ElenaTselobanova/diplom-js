@@ -57,6 +57,8 @@ class Actor {
         if (actor === this) {
             return false;
         }
+        // скобки можно убрать
+        // выражение можно записать в несколько строк (просто добавить переносы)
         return (actor.left < this.right && actor.right > this.left && actor.top < this.bottom && actor.bottom > this.top);
     }
 }
@@ -66,17 +68,21 @@ class Level {
     constructor(grid = [], actors = []) {
         this.grid = grid;
         this.actors = actors;
+        // вместо for of лучше использовать обчный for или .forEach
+        // в данном случае нужно использовать метод мессива для поиска обхектов
         for (let actor of actors) {
             if (actor.type === 'player') {
                 this.player = actor;
                 }
         }
         this.height = grid.length;
+        // скобки вокруг вызова .map можно убрать
         this.width = Math.max(0, ...(this.grid.map(array => array.length)));
         this.status = null;
         this.finishDelay = 1;
     }
     isFinished() {
+        // скобки можно убрать
         return (this.status != null && this.finishDelay < 0);
     }
 
@@ -85,19 +91,26 @@ class Level {
             throw new Error('Не является объектом типа Actor');
         }
 
+        // целостность объекта лучше проверять в конструкторе,
+        // чтобы не проверять поля в каждом методе перед их испльзованием
         if (this.grid === undefined) {
             return undefined;
         }
 
+        // тут нужно использовать метод массива
         for (let act of this.actors) {
             if (typeof act != 'undefined' && actor.isIntersect(act)) {
                 return act;
             }
         }
+        // эта строчка ничего не делает,
+        // функция и так возвращает undefined, если не указано иное
         return undefined;
     }
 
     obstacleAt(pos, size) {
+        // если значение присваивается переменной 1 раз,
+        // то лучше использовать const
         let left = Math.floor(pos.x);
         let right = Math.ceil(pos.x + size.x);
         let top = Math.floor(pos.y);
@@ -114,6 +127,10 @@ class Level {
         }
         for (let y = top; y < bottom; y++) {
             for (let x = left; x < right; x++) {
+                // форматирование
+                // если добавится новый вид препятствий,
+                // то этот меттод придётся менять,
+                // нужно сделать код более расширяемым
               if ((this.grid[y][x] === 'wall') || (this.grid[y][x] === 'lava')) {
                   return this.grid[y][x];
                 }
@@ -122,6 +139,7 @@ class Level {
     }
 
     removeActor(actor) {
+        // const
         let index = this.actors.indexOf(actor);
         if (index !== -1) {
             this.actors.splice(index, 1);
@@ -129,7 +147,11 @@ class Level {
     }
 
     noMoreActors(type) {
+        // если нужно, то эту проверку лучше сделать в конструкторе
         if (this.actors) {
+            // тут лучше использовать метод массива,
+            // который проверяет наличие объектов по условию
+            // и возвращает true/false
             for (let actor of this.actors) {
                 if (actor.type === type) {
                     return false;
@@ -147,6 +169,7 @@ class Level {
             this.status = 'lost';
             return;
         }
+        // в принципе, вторую половину проверки можно убрать
         if ((type === 'coin') && (actor.type === 'coin')) {
             this.removeActor(actor);
             if (this.noMoreActors('coin')) {
@@ -169,22 +192,31 @@ class LevelParser {
     obstacleFromSymbol(symbol) {
         if (symbol === 'x') {
             return 'wall';
+        // если if заканчивается на return, nо else можно не писать
         }else if (symbol === '!') {
             return 'lava';
         }else{
+            // строчка ничего не длеает
             return undefined;
         }
     }
 
     createGrid(array) {
+        // можно добавить переносов строк
         return array.map(line => line.split('')).map(line => line.map(line => this.obstacleFromSymbol(line)));
     }
 
     createActors(array) {
+        // const
         let actors = [];
         array.forEach((line, y) => {
             line.split('').forEach((symbol, x) => {
+                // const
                 let constr = this.actorFromSymbol(symbol);
+                // не опускайте фигурные скобки
+                // объект создаётся 2 раза (один для проверки, второй при push)
+                // лучше создать 1 раз, проверить и добавить в массив,
+                // если подходящий
                 if (!(typeof constr === 'function' && new constr instanceof Actor)) return;
                 actors.push(new constr(new Vector(x, y)));
             });
@@ -200,6 +232,7 @@ class LevelParser {
 
 class Fireball extends Actor {
     constructor(pos = new Vector(0, 0), speed = new Vector(0, 0)) {
+        // const
         let size = new Vector(1, 1);
         super(pos, size, speed);
     }
@@ -209,6 +242,7 @@ class Fireball extends Actor {
     }
 
     getNextPosition(time = 1) {
+        // тут нужно использовать методы класса Vector
         return new Vector(this.pos.x + time * this.speed.x, this.pos.y + time * this.speed.y);
     }
 
@@ -217,6 +251,7 @@ class Fireball extends Actor {
     }
 
     act(time, level) {
+        // const
         let nextPosition = this.getNextPosition(time);
         if (level.obstacleAt(nextPosition, this.size)) {
             this.handleObstacle();
@@ -229,6 +264,7 @@ class Fireball extends Actor {
 
 class HorizontalFireball extends Fireball {
     constructor(pos = new Vector(0, 0)) {
+        // const
         let speed = new Vector(2, 0);
         super(pos, speed);
     }
@@ -236,6 +272,7 @@ class HorizontalFireball extends Fireball {
 
 class VerticalFireball extends Fireball {
     constructor(pos = new Vector(0)) {
+        // const
         let speed = new Vector(0, 2);
         super(pos, speed);
     }
@@ -243,6 +280,7 @@ class VerticalFireball extends Fireball {
 
 class FireRain extends Fireball {
     constructor(pos = new Vector(0, 0)) {
+        // const
         let speed = new Vector(0, 3);
         super(pos, speed);
         this.startPos = pos;
@@ -255,7 +293,9 @@ class FireRain extends Fireball {
 
 class Coin extends Actor {
     constructor(pos = new Vector(0, 0)) {
+        // лучше не менять значения аргументов
         pos = new Vector(pos.x + 0.2, pos.y + 0.1);
+        // const
         let size = new Vector(0.6, 0.6);
         super(pos, size);
 
@@ -289,7 +329,9 @@ class Coin extends Actor {
 
 class Player extends Actor {
     constructor(pos = new Vector(0, 0)) {
+        // лучше не менять значения аргументов
         pos = new Vector(pos.x, pos.y - 0.5);
+        // const и не объявляйте переменный через запятую
         let size = new Vector(0.8, 1.5),
             speed = new Vector(0, 0);
         super(pos, size, speed);
@@ -300,6 +342,7 @@ class Player extends Actor {
     }
 }
 
+// переменная больше не используется
 const schemas = [
     [
         '         ',
