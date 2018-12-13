@@ -243,7 +243,7 @@ class VerticalFireball extends Fireball {
 
 class FireRain extends Fireball {
     constructor(pos = new Vector(0, 0)) {
-        let speed = new Vector(0, 3);
+        const speed = new Vector(0, 3);
         super(pos, speed);
         this.startPos = pos;
     }
@@ -300,28 +300,6 @@ class Player extends Actor {
     }
 }
 
-const schemas = [
-    [
-        '         ',
-        '    =    ',
-        '         ',
-        '       o ',
-        ' @    xxx',
-        '         ',
-        'xxx      ',
-        '!!!!!!!!!'
-    ],
-    [
-        '      v  ',
-        '    v    ',
-        '  v      ',
-        '        o',
-        '        x',
-        '@   x    ',
-        'x        ',
-        '!!!!!!!!!'
-    ]
-];
 
 const actorDict = {
     '@': Player,
