@@ -51,7 +51,7 @@ class Actor {
     }
 
     isIntersect(actor) {
-        if (!actor || !(actor instanceof Actor)) {
+        if (!(actor instanceof Actor)) {
             throw new Error('Не является объектом типа Actor');
         }
         if (actor === this) {
